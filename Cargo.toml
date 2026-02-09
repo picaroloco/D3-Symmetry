@@ -1,6 +1,6 @@
 [package]
-name = "D3-Symmetry"
+name = "d3-symmetry"
 version = "0.1.0"
-edition = "2024"
+edition = "2021"
 
 [dependencies]
