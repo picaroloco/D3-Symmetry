@@ -18,8 +18,38 @@ Este repositorio es una **prueba de concepto (PoC)** que demuestra como el discr
 ## Ejecucion
 
 ```bash
+cargo build
+
 cargo run
 ```
+
+## Requisitos: Z3 SMT Solver
+
+Este laboratorio utiliza **Z3** para certificar que la simetría $|D|=3$ es una obligación lógica y no un error de implementación. A diferencia de un test normal, Z3 usa **lógica simbólica** y `BitVectors` para demostrar la invarianza de la curva.
+
+Este laboratorio utiliza **Z3** para certificar que la simetría $|D|=3$ es una obligación lógica y no un error de implementación. A diferencia de un test normal, Z3 usa **lógica simbólica** y `BitVectors` para demostrar la invarianza de la curva de forma formal.
+
+### Instalación de dependencias
+
+Para compilar este proyecto, necesitas el motor Z3 y las librerías de `clang` (requeridas por `bindgen` para generar los bindings de Rust):
+
+* **Arch Linux**:
+    ```bash
+    sudo pacman -S z3 clang llvm
+    ```
+* **Ubuntu / Debian**:
+    ```bash
+    sudo apt install libz3-dev clang libclang-dev
+    ```
+* **macOS (Homebrew)**:
+    ```bash
+    brew install z3
+    ```
+* **Windows**: 
+    Se recomienda usar `vcpkg install z3:x64-windows` o descargar los binarios oficiales y configurar la variable de entorno `LIBCLANG_PATH`.
+
+> **Nota:** Si la compilación falla buscando `libclang`, asegúrate de que tu sistema esté actualizado para evitar conflictos entre las versiones de LLVM instaladas.
+
 
 La demo ejecuta en milisegundos y muestra:
 - Parametros de la curva toy (p=10477, analogia directa con Bitcoin)

@@ -8,3 +8,6 @@ edition = "2021"
 num-bigint = "0.4"
 num-traits = "0.2"
 num-integer = "0.1"
+
+# SMT solver bindings
+z3 = "0.19.7"
