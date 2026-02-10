@@ -1,5 +1,4 @@
-pub mod field;
-pub mod curve;
+pub mod math;
 pub mod endomorphism;
-pub mod attack;
+pub mod attacks;
 pub mod formal_verification;

@@ -1,6 +1,6 @@
 /// Operaciones de curva eliptica y^2 = x^3 + b sobre F_p.
 
-use crate::field::*;
+use super::field::*;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct Point {

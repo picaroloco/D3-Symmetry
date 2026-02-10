@@ -1,8 +1,8 @@
 /// Ataques ECDLP: BSGS estandar vs BSGS con automorfismos (D=-3).
 
 use std::collections::HashMap;
-use crate::field::*;
-use crate::curve::*;
+use crate::math::field::*;
+use crate::math::curve::*;
 use crate::endomorphism::*;
 
 /// BSGS estandar: resuelve Q = k*G en el grupo de orden n.

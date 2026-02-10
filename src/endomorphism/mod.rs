@@ -3,8 +3,8 @@
 /// En una curva y^2 = x^3 + b con D=-3, existe beta tal que beta^3 = 1 (mod p).
 /// El endomorfismo phi(x, y) = (beta*x, y) es un automorfismo del grupo.
 
-use crate::field::*;
-use crate::curve::*;
+use crate::math::field::*;
+use crate::math::curve::*;
 
 /// Encuentra beta: raiz cubica primitiva de 1 mod p.
 /// Requiere p ≡ 1 (mod 3).

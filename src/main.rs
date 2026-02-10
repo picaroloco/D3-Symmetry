@@ -3,10 +3,9 @@
 /// Curva: y^2 = x^3 + 7 sobre F_p (misma ecuacion que Bitcoin secp256k1)
 /// Primo toy: p = 10477 (p ≡ 1 mod 3, necesario para D=-3)
 
-use d3_symmetry::field::*;
-use d3_symmetry::curve::*;
+use d3_symmetry::math::*;
 use d3_symmetry::endomorphism::*;
-use d3_symmetry::attack::*;
+use d3_symmetry::attacks::*;
 use d3_symmetry::formal_verification::Z3Verifier;
 
 fn main() {
