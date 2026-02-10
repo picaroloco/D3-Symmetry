@@ -1,0 +1,2 @@
+# Z3 Theorem Prover - SMT Solver
+z3-solver==4.13.0.0
