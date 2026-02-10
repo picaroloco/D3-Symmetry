@@ -1,3 +1,3 @@
-pub mod z3;
+pub mod glv_invariant_prover_z3;
 
-pub use z3::{Z3Verifier, VerificationResult};
+pub use glv_invariant_prover_z3::{Z3Verifier, VerificationResult};
