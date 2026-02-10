@@ -7,6 +7,7 @@ use d3_symmetry::field::*;
 use d3_symmetry::curve::*;
 use d3_symmetry::endomorphism::*;
 use d3_symmetry::attack::*;
+use d3_symmetry::formal_verification::Z3Verifier;
 
 fn main() {
     println!("=== D3-Symmetry: Demostracion del Ataque GLV ===\n");
@@ -135,4 +136,21 @@ fn main() {
     println!("    En Bitcoin (secp256k1), esto reduce la seguridad efectiva de");
     println!("    128 bits a ~122 bits. Cada automorfismo adicional es una");
     println!("    simetria explotable que debilita la criptografia.");
+
+    // ════════════════════════════════════════════════
+    // [7] VERIFICACIÓN FORMAL
+    // ════════════════════════════════════════════════
+    println!();
+    println!("[7] VERIFICACION FORMAL (Z3 SMT Solver)");
+    
+    let verifier = Z3Verifier::new();
+    let results = verifier.run_all_verifications();
+    
+    for result in results {
+        let status = if result.passed { "✓" } else { "✗" };
+        println!("    {} {}: {}", status, result.name, result.details);
+    }
+
+    println!();
+    println!("=== Fin de la Demostracion ===");
 }
