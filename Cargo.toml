@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 # Python integration for Z3 verification
-pyo3 = { version = "0.21.0", features = ["auto-initialize"] }
+pyo3 = { version = "0.22", features = ["auto-initialize"] }
 
 # Existing crypto dependencies
 num-bigint = "0.4"
