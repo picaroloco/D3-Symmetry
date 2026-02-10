@@ -70,9 +70,10 @@ SafeCurves recomienda $|D| > 2^{100}$. Bitcoin usa $|D| = 3$.
 
 ## Referencias
 
-1. [La Fragilidad del Discriminante |D|=3](docs/Fragilidad_Discriminante.md) - Analisis matematico.
-2. Gallant, Lambert, Vanstone (2001). *Faster Point Multiplication on Elliptic Curves with Efficient Endomorphisms*.
-3. [SafeCurves](https://safecurves.cr.yp.to/) - Criterios para curvas elipticas seguras.
+1. [La Fragilidad del Discriminante |D|=3](docs/Fragilidad_Discriminante.md) - Análisis matemático sobre por qué Bitcoin usa esta curva y el riesgo teórico asociado.
+2. [Analisis SMT de invariantes GLV](docs/Analisis_Simbolico_Z3.md) - Detalle técnico sobre cómo el motor glv_invariant_prover_z3.rs utiliza BitVectors de 512 bits para certificar la estructura del anillo de Eisenstein.
+3. Gallant, Lambert, Vanstone (2001). *Faster Point Multiplication on Elliptic Curves with Efficient Endomorphisms*.
+4. [SafeCurves](https://safecurves.cr.yp.to/) - Criterios para curvas elipticas seguras.
 
 ## Disclaimer
 
