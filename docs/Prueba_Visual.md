@@ -4,7 +4,7 @@
 
 ---
 
-## \[1\] Curva Toy (analogía directa con Bitcoin)
+## \[1\] Curva Toy (análoga a secp256k1)
 
 | Parámetro | Valor |
 |---|---|
@@ -20,7 +20,7 @@ Verificación: [n]G = O                   ✓
 
 ---
 
-## \[2\] Endomorfismo (la debilidad de $\lvert D \rvert = 3$)
+## \[2\] Endomorfismo (propiedad de $D = -3$)
 
 | Constante | Valor | Propiedad |
 |---|---|---|
@@ -38,7 +38,7 @@ Verificación: φ(G) = [λ]G                ✓
 
 ## \[3\] Grupo de Automorfismos
 
-$$|\text{Aut}(E)| = 6 \quad \text{(vs 2 en una curva con } |D| \text{ grande)}$$
+$$|\text{Aut}(E)| = 6 \quad \text{(vs 2 para curvas con } |D| \gg 0 \text{)}$$
 
 | Automorfismo | Imagen de $G$ | ¿En la curva? |
 |---|---|---|
@@ -53,11 +53,11 @@ $$|\text{Aut}(E)| = 6 \quad \text{(vs 2 en una curva con } |D| \text{ grande)}$$
 
 ---
 
-## \[4\] Ataque ECDLP: BSGS Estándar (sin explotar $D = -3$)
+## \[4\] ECDLP: BSGS Estándar (sin endomorfismo)
 
 ```
-Clave secreta (oculta): k = 7777
-Clave pública:          Q = k·G = (6142, 7632)
+Clave secreta: k = 7777
+Clave pública: Q = k·G = (6142, 7632)
 ```
 
 | Métrica | Valor |
@@ -69,7 +69,7 @@ Clave pública:          Q = k·G = (6142, 7632)
 
 ---
 
-## \[5\] Ataque ECDLP: BSGS con GLV (explotando $D = -3$)
+## \[5\] ECDLP: BSGS con GLV ($|Aut(E)|=6$)
 
 > Misma $Q$, misma curva. Usando clases de equivalencia de tamaño 6.
 
@@ -94,16 +94,12 @@ Clave pública:          Q = k·G = (6142, 7632)
 └─────────────────────┴──────────┴──────────┘
 ```
 
-**Vulnerabilidad demostrada:**
-
-El discriminante $|D| = 3$ permite resolver ECDLP **3.07x** más rápido.
+El factor $|\text{Aut}(E)| = 6$ reduce el espacio de búsqueda de BSGS.
 
 | | Valor |
 |---|---|
 | Speedup teórico | $\sqrt{6} \approx 2.4495$ |
 | Factor observado | $3.0690$ |
-
-> En Bitcoin (secp256k1), esto reduce la seguridad efectiva de **128 bits a ~122 bits**. Cada automorfismo adicional es una simetría explotable que debilita la criptografía.
 
 ---
 
