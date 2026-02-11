@@ -1,6 +1,6 @@
-/// D3-Symmetry: Demostracion del ataque GLV en una curva toy con D=-3
+/// D3-Symmetry: Análisis del endomorfismo GLV en curvas con discriminante CM D=-3
 ///
-/// Curva: y^2 = x^3 + 7 sobre F_p (misma ecuacion que Bitcoin secp256k1)
+/// Curva: y^2 = x^3 + 7 sobre F_p (misma ecuación que secp256k1)
 /// Primo toy: p = 10477 (p ≡ 1 mod 3, necesario para D=-3)
 
 use d3_symmetry::math::*;
@@ -9,7 +9,7 @@ use d3_symmetry::attacks::*;
 use d3_symmetry::formal_verification::Z3Verifier;
 
 fn main() {
-    println!("=== D3-Symmetry: Demostracion del Ataque GLV ===\n");
+    println!("=== D3-Symmetry: Endomorfismo GLV en curvas con D=-3 ===\n");
 
     // ── Parametros de la curva toy ──
     let p: u64 = 10477;  // primo, 10477 mod 3 == 1, orden del grupo primo
@@ -18,7 +18,7 @@ fn main() {
     // ════════════════════════════════════════════════
     // [1] CURVA TOY
     // ════════════════════════════════════════════════
-    println!("[1] CURVA TOY (analogia directa con Bitcoin)");
+    println!("[1] CURVA TOY (análoga a secp256k1)");
     println!("    Ecuacion: y^2 = x^3 + 7");
     println!("    Campo:    F_{{{}}}   (primo, {} mod 3 = {})", p, p, p % 3);
 
@@ -38,7 +38,7 @@ fn main() {
     // ════════════════════════════════════════════════
     // [2] ENDOMORFISMO (la debilidad de |D|=3)
     // ════════════════════════════════════════════════
-    println!("[2] ENDOMORFISMO (la debilidad de |D|=3)");
+    println!("[2] ENDOMORFISMO (propiedad de D=-3)");
 
     let beta = find_beta(p);
     let beta2 = mod_mul(beta, beta, p);
@@ -65,7 +65,7 @@ fn main() {
     // [3] GRUPO DE AUTOMORFISMOS
     // ════════════════════════════════════════════════
     println!("[3] GRUPO DE AUTOMORFISMOS");
-    println!("    |Aut(E)| = 6 (vs 2 en una curva con |D| grande)\n");
+    println!("    |Aut(E)| = 6 (vs 2 para curvas con |D| >> 0)\n");
 
     let orbit = automorphism_orbit(&g, beta, p);
     let labels = ["[1]G", "[zeta3]G", "[zeta3^2]G", "[-1]G", "[-zeta3]G", "[-zeta3^2]G"];
@@ -80,12 +80,12 @@ fn main() {
     // ════════════════════════════════════════════════
     // [4] ATAQUE ECDLP: BSGS ESTANDAR
     // ════════════════════════════════════════════════
-    println!("[4] ATAQUE ECDLP: BSGS ESTANDAR (sin explotar D=-3)");
+    println!("[4] ECDLP: BSGS ESTANDAR (sin explotar endomorfismo)");
 
-    // Elegir clave secreta determinista pero no trivial
+    // Clave secreta determinista para reproducibilidad
     let secret_k = 7777u64 % order;
     let pub_q = scalar_mul(secret_k, &g, p);
-    println!("    Clave secreta (oculta): k = {} (elegida para la demo)", secret_k);
+    println!("    Clave secreta: k = {} (fijada para reproducibilidad)", secret_k);
     println!("    Clave publica: Q = k*G = {}", pub_q);
     println!("    Resolviendo Q = k*G por BSGS estandar...");
 
@@ -99,7 +99,7 @@ fn main() {
     // ════════════════════════════════════════════════
     // [5] ATAQUE ECDLP: BSGS CON GLV
     // ════════════════════════════════════════════════
-    println!("[5] ATAQUE ECDLP: BSGS CON GLV (explotando D=-3)");
+    println!("[5] ECDLP: BSGS CON GLV (explotando |Aut(E)|=6)");
     println!("    Misma Q, misma curva.");
     println!("    Usando clases de equivalencia de tamanio 6...");
 
@@ -114,7 +114,7 @@ fn main() {
     // ════════════════════════════════════════════════
     // [6] COMPARACION
     // ════════════════════════════════════════════════
-    println!("[6] COMPARACION");
+    println!("[6] COMPARACION BSGS");
     let speedup = ops_std as f64 / ops_glv as f64;
     let theoretical = (6.0f64).sqrt();
 
@@ -127,14 +127,9 @@ fn main() {
     println!("    └─────────────────────┴──────────┴──────────┘");
 
     println!();
-    println!("    VULNERABILIDAD DEMOSTRADA:");
-    println!("    El discriminante |D|=3 permite resolver ECDLP {:.2}x mas rapido.", speedup);
+    println!("    El factor |Aut(E)|=6 reduce el espacio de busqueda.");
     println!("    Speedup teorico: sqrt(6) = {:.4}", theoretical);
     println!("    Factor observado: {:.4}", speedup);
-    println!();
-    println!("    En Bitcoin (secp256k1), esto reduce la seguridad efectiva de");
-    println!("    128 bits a ~122 bits. Cada automorfismo adicional es una");
-    println!("    simetria explotable que debilita la criptografia.");
 
     // ════════════════════════════════════════════════
     // [7] VERIFICACIÓN FORMAL
@@ -150,6 +145,52 @@ fn main() {
         println!("    {} {}: {}", status, result.name, result.details);
     }
 
+    // ════════════════════════════════════════════════
+    // [8] ATAQUE ECDLP: POLLARD'S RHO
+    // ════════════════════════════════════════════════
     println!();
-    println!("=== Fin de la Demostracion ===");
+    println!("[8] ECDLP: POLLARD'S RHO (memoria O(1))");
+    println!("    Misma Q = k*G, k = {}", secret_k);
+    println!("    Deteccion de ciclo: Floyd (tortuga/liebre)");
+    println!("    Sin reduccion por automorfismos...");
+
+    let rho_std = pollard_rho_standard(&pub_q, &g, order, p);
+    let rho_verify = scalar_mul(rho_std.k, &g, p);
+    assert_eq!(rho_verify, pub_q, "Pollard Rho estandar encontro k incorrecto!");
+    println!("    Iteraciones: {}", rho_std.iterations);
+    println!("    Resultado: k = {} ✓\n", rho_std.k);
+
+    println!("    Con Equivalence Class Search (|Aut(E)| = 6)...");
+
+    let rho_glv = pollard_rho_glv(&pub_q, &g, order, p, beta);
+    let rho_glv_verify = scalar_mul(rho_glv.k, &g, p);
+    assert_eq!(rho_glv_verify, pub_q, "Pollard Rho GLV encontro k incorrecto!");
+    println!("    Iteraciones: {}", rho_glv.iterations);
+    println!("    Resultado: k = {} ✓", rho_glv.k);
+
+    // ════════════════════════════════════════════════
+    // [9] COMPARACION FINAL: TODOS LOS ATAQUES
+    // ════════════════════════════════════════════════
+    println!();
+    println!("[9] COMPARACION FINAL");
+
+    let rho_speedup = rho_std.iterations as f64 / rho_glv.iterations as f64;
+
+    println!("    ┌───────────────────────────┬──────────┬──────────┬───────────┐");
+    println!("    │ Metodo                    │ Ops      │ Speedup  │ Memoria   │");
+    println!("    ├───────────────────────────┼──────────┼──────────┼───────────┤");
+    println!("    │ BSGS estandar             │ {:>8} │ 1.00x    │ O(√n)     │", ops_std);
+    println!("    │ BSGS con D=-3             │ {:>8} │ {:.2}x   │ O(√n/6)   │", ops_glv, speedup);
+    println!("    │ Pollard ρ estandar        │ {:>8} │ ---      │ O(1)      │", rho_std.iterations);
+    println!("    │ Pollard ρ con D=-3        │ {:>8} │ {:.2}x   │ O(1)      │", rho_glv.iterations, rho_speedup);
+    println!("    │ Speedup teorico (D=-3)    │          │ {:.2}x   │           │", (6.0f64).sqrt());
+    println!("    └───────────────────────────┴──────────┴──────────┴───────────┘");
+
+    println!();
+    println!("    Observacion:");
+    println!("    La reduccion por clases de equivalencia bajo Aut(E) comprime");
+    println!("    el espacio de colision. Factor teorico: sqrt(|Aut(E)|) = sqrt(6) = {:.2}x.", (6.0f64).sqrt());
+
+    println!();
+    println!("=== Fin ===");
 }
