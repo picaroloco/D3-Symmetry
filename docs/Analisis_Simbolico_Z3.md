@@ -1,12 +1,12 @@
-# Verificación Formal de la Simetría Hexagonal via SMT
+# Verificación Formal de Invariantes GLV mediante SMT
 
-Este documento detalla el uso del solver **Z3 (Satisfiability Modulo Theories)** para certificar la vulnerabilidad estructural de la curva `secp256k1` utilizada en Bitcoin.
+Este documento detalla el uso del solver **Z3 (Satisfiability Modulo Theories)** para certificar las propiedades algebraicas de la curva `secp256k1` relevantes al endomorfismo GLV.
 
 ## 1. ¿Por qué Verificación Formal?
 
-A diferencia de un *Unit Test* tradicional que comprueba valores concretos (aritmética concreta), la verificación formal utiliza **lógica simbólica**. 
+A diferencia de un *Unit Test* que comprueba valores concretos (aritmética concreta), la verificación formal utiliza **lógica simbólica**. 
 
-En `D3-Symmetry`, Z3 no "prueba" si un número funciona; **demuestra** que, dada la definición de la curva $y^2 = x^3 + 7$, la existencia de un endomorfismo de grado bajo es una **obligación lógica**.
+Z3 no comprueba si un número particular funciona; **demuestra** que, dada la definición de la curva $y^2 = x^3 + 7$, la existencia de un endomorfismo eficiente es una **consecuencia lógica** de los parámetros elegidos.
 
 ## 2. Modelado con BitVectors (512-bit)
 
@@ -24,16 +24,16 @@ $$\lambda^2 + \lambda + 1 \equiv 0 \pmod n$$
 La prueba se realiza por **contradicción**: Pedimos a Z3 que busque un caso donde esto *no* se cumpla. Al devolver `UNSAT` (Unsatisfiable), Z3 certifica que la igualdad es una verdad universal bajo los parámetros de secp256k1.
 
 ### B. Unicidad y No-Trivialidad
-Verificamos simbólicamente que $\lambda$ no es una raíz trivial (como 1 o $n-1$). Z3 confirma que $\lambda$ es un elemento de orden 3 en el grupo, lo que "abre" la puerta a la simetría hexagonal.
+Verificamos simbólicamente que $\lambda$ no es una raíz trivial (como 1 o $n-1$). Z3 confirma que $\lambda$ es un elemento de orden 3 en el grupo multiplicativo $(\mathbb{Z}/n\mathbb{Z})^*$.
 
 ### C. Condición del Discriminante ($\lvert D \rvert=3$)
-Validamos que el primo de Bitcoin cumple $p \equiv 1 \pmod 3$. Esta es la condición necesaria y suficiente para que la curva posea la estructura de **Multiplicación Compleja (CM)** necesaria para el ataque.
+Validamos que el primo $p$ de secp256k1 cumple $p \equiv 1 \pmod 3$. Esta es la condición necesaria y suficiente para que $\mathbb{F}_p$ contenga raíces cúbicas de la unidad, lo que a su vez permite la existencia del endomorfismo $\phi$.
 
 ---
 
 ## 4. Implementación: `glv_invariant_prover_z3.rs`
 
-El motor de certificación SMT reside en [`src/formal_verification/glv_invariant_prover_z3.rs`](../src/formal_verification/glv_invariant_prover_z3.rs). El nombre refleja su propósito: no es una utilidad genérica, sino el **demostrador de los invariantes** que quiebran la seguridad estándar de secp256k1.
+El motor de certificación SMT reside en [`src/formal_verification/glv_invariant_prover_z3.rs`](../src/formal_verification/glv_invariant_prover_z3.rs). Su propósito es demostrar los invariantes algebraicos del endomorfismo GLV sobre los parámetros concretos de secp256k1.
 
 ### 4.1 El Motor: BitVectors de 512 bits
 
@@ -53,7 +53,7 @@ const N_DEC: &str = "11579208923731619...4337";  // Orden del grupo (n)
 const LAMBDA_DEC: &str = "37718080363155...0018";  // Eigenvalue del endomorfismo
 ```
 
-Codificadas en **decimal** para alimentar directamente a `BV::from_str()` de Z3. Estas no son valores arbitrarios — son las constantes intrínsecas de secp256k1 que el solver certifica.
+Codificadas en **decimal** para alimentar directamente a `BV::from_str()` de Z3. Son las constantes intrínsecas de secp256k1 que el solver verifica.
 
 ### 4.3 Prueba A — Verificación por Refutación (`verify_lambda_polynomial`)
 
@@ -77,7 +77,7 @@ let x = BV::new_const("x", BV_BITS);
 
 A diferencia de un test normal, no pasamos un valor concreto. Le decimos a Z3: *"Encuentra un `x` en todo el espacio de $2^{512}$ posibilidades que cumpla las restricciones del endomorfismo"*.
 
-Al forzar `solver.assert(&x.eq(&known_lambda))`, certificamos que nuestro $\lambda$ es exactamente el **testigo matemático** de la vulnerabilidad. Z3 devuelve `SAT` — el testigo existe.
+Al forzar `solver.assert(&x.eq(&known_lambda))`, certificamos que nuestro $\lambda$ concreto es un testigo válido del polinomio. Z3 devuelve `SAT` — el testigo existe.
 
 ```
 Z3 confirma: ∃x = λ tal que x²+x+1 ≡ 0 (mod n) [SAT ⇒ válido]
@@ -85,10 +85,10 @@ Z3 confirma: ∃x = λ tal que x²+x+1 ≡ 0 (mod n) [SAT ⇒ válido]
 
 ### 4.5 Prueba C — Invariante del Campo (`verify_discriminant`)
 
-Valida la "huella digital" de las curvas de Koblitz:
+Valida las condiciones necesarias del campo base:
 
-* **Condición de CM**: Verifica que $p \equiv 1 \pmod{3}$. Esta propiedad del primo de Bitcoin garantiza que $\mathbb{F}_p$ contiene las raíces cúbicas de la unidad necesarias para aplicar $\phi(P) = (\beta x, y)$.
-* **No-singularidad**: Valida que el discriminante $\Delta \neq 0$ para asegurar que la curva es válida y no degenerada.
+* **Condición de CM**: Verifica que $p \equiv 1 \pmod{3}$. Esta propiedad garantiza que $\mathbb{F}_p$ contiene las raíces cúbicas de la unidad necesarias para el endomorfismo $\phi(P) = (\beta x, y)$.
+* **No-singularidad**: Valida que el discriminante $\Delta \neq 0$ para confirmar que la curva es no-singular.
 
 Ambas condiciones se niegan simultáneamente. Si Z3 devuelve `UNSAT`, ninguna de las dos puede ser falsa.
 

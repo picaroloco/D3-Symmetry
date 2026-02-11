@@ -20,9 +20,9 @@ Una curva elíptica segura bajo los criterios de [SafeCurves](https://safecurves
 
 $$|D| > 2^{100}$$
 
-Esto garantiza que la estructura algebraica del anillo de endomorfismos $\text{End}(E)$ sea lo suficientemente compleja como para resistir ataques estructurales. Bitcoin utiliza $|D| = 3$, un valor MUY BAJO.
+Esto garantiza que la estructura algebraica del anillo de endomorfismos $\text{End}(E)$ sea lo suficientemente compleja como para que no induzca automorfismos adicionales. secp256k1 tiene $|D| = 3$.
 
-| Curva | $\lvert D \rvert$ | Segura (SafeCurves) |
+| Curva | $\lvert D \rvert$ | Cumple SafeCurves |
 |-------|-------|---------------------|
 | Curve25519 | $\approx 2^{253}$ | Sí |
 | Ed448 | $\approx 2^{445}$ | Sí |
@@ -34,7 +34,7 @@ Cuando $D = -3$, el anillo de endomorfismos es:
 
 $$\text{End}(E) \cong \mathbb{Z}[\zeta_3]$$
 
-donde $\zeta_3$ es una raiz cubica primitiva de la unidad. Este anillo es **mucho mas rico** que el $\mathbb{Z}$ generico, lo que significa que la curva tiene **estructura algebraica adicional** que un atacante puede explotar.
+donde $\zeta_3$ es una raíz cúbica primitiva de la unidad. Este anillo es **más rico** que el $\mathbb{Z}$ genérico, lo que implica que la curva posee estructura algebraica adicional.
 
 ## 3. El Endomorfismo Eficiente
 
@@ -102,11 +102,11 @@ Sea $E(\mathbb{F}_p)$ el grupo de puntos de la curva con orden $n$. El endomorfi
 
 $$\text{Aut}(E) \supsetneq \{[1], [-1]\}$$
 
-En una curva con $|D|$ grande, $\text{Aut}(E) = \{[1], [-1]\}$ (solo la identidad y la negacion). En secp256k1:
+En una curva con $|D|$ grande, $\text{Aut}(E) = \{[1], [-1]\}$ (identidad y negación). En secp256k1:
 
 $$\text{Aut}(E) = \{[1], [\zeta_3], [\zeta_3^2], [-1], [-\zeta_3], [-\zeta_3^2]\}$$
 
-El grupo de automorfismos es **6 veces mas grande** de lo necesario. Cada automorfismo adicional es una **simetria explotable**.
+El grupo de automorfismos tiene orden 6. Cada automorfismo adicional induce una clase de equivalencia que reduce el espacio efectivo de búsqueda en algoritmos de tipo Pollard y BSGS.
 
 ---
 
